@@ -1,0 +1,34 @@
+{
+  "name": "autoEmbed_ruleData",
+  "type": "vectorSearch",
+  "definition": {
+    "fields": [
+      {
+        "type": "autoEmbed",
+        "modality": "text",
+        "path": "ruleDataText",
+        "model": "voyage-4-large"
+      },
+      {
+        "type": "filter",
+        "path": "ruleDomain"
+      },
+      {
+        "type": "filter",
+        "path": "ruleType"
+      },
+      {
+        "type": "filter",
+        "path": "purpose"
+      },
+      {
+        "type": "filter",
+        "path": "effStartDate"
+      },
+      {
+        "type": "filter",
+        "path": "effEndDate"
+      }
+    ]
+  }
+}

@@ -1,0 +1,55 @@
+# Local credentials and environment files; keep portable setup templates.
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+*.pem
+*.key
+
+# Local OS/editor files.
+.DS_Store
+**/.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Dependencies, build output, and generated test/tool artifacts.
+**/.venv/
+**/__pycache__/
+*.py[cod]
+**/.pytest_cache/
+**/.ruff_cache/
+**/node_modules/
+**/dist/
+**/*.egg-info/
+**/.coverage
+**/.coverage.*
+**/htmlcov/
+**/test-results/
+**/playwright-report/
+*.log
+*.sqlite*
+
+# Runtime-local results, screenshots, exports, and persisted checkpoints.
+/context-knowledge-graph-runtime/data/
+
+# Historical customer reference material and superseded prototypes.
+/Transcript/
+/*-plan/
+/work/
+/The Third Tier — Core Outline (Industry-Agnostic).md
+
+# Capacity-planning work outside the Context Engineering Studio demo.
+/SIZING_ASSUMPTIONS.md
+/context-knowledge-graph-runtime/scripts/estimate_context_capacity.py
+
+# Keep the complete runtime (including imported legacy modules), Docker/build
+# manifests, lockfiles, tests, fixture setup/migration scripts, demo index
+# definitions, environment examples, and supporting context/retrieval guides.
+
+# Superseded documentation snapshots, retained locally only.
+/docs/archive/

@@ -1,0 +1,13 @@
+services:
+  context-knowledge-graph:
+    build: .
+    ports:
+      - '127.0.0.1:8080:8000'
+    env_file:
+      - .env
+    init: true
+    healthcheck:
+      test: ['CMD', '/app/.venv/bin/python', '-c', "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=5)"]
+      interval: 15s
+      timeout: 6s
+      retries: 3

@@ -1,59 +1,77 @@
 # Context Knowledge Graph
 
-A local Context Engineering Studio for exploring how MongoDB documents, hybrid retrieval, reranking, and versioned relationships support pharmacy-pricing explanations. Built with FastAPI and React, packaged as one Docker Compose service.
+A local Context Engineering Studio that demonstrates MongoDB document modeling, hybrid search, reranking, and versioned rule relationships using synthetic pharmacy-pricing data.
 
-## Start here
+## Before you start
 
-Prerequisites: Docker with Compose, an accessible Atlas deployment containing the compatible synthetic fixtures, and its database credentials. The Studio does not create a new Atlas cluster, import the complete dataset, or provision Search indexes automatically. Use an existing demo deployment or arrange a compatible fixture snapshot before running it.
+You need:
 
-From the repository root, create the single local configuration file if you do not already have it:
+- Docker running with Docker Compose available—for example, through Docker Desktop.
+- Access to an Atlas database containing the compatible demo data and ready Search indexes.
+- A MongoDB connection string with permission to read that data, and network access to the Atlas deployment.
 
-```bash
-cp context-knowledge-graph-runtime/.env.example context-knowledge-graph-runtime/.env
-```
+The app does not load the complete dataset or provision Atlas automatically. For the quickest setup, connect to an existing demo deployment. An empty database will not run the demonstration; index definitions alone do not supply the sample data.
 
-Edit the ignored runtime `.env` locally:
+You do not need a separate Python or Node installation, an answer-LLM API key, or a memory service to launch the Studio with Docker.
 
-```dotenv
-CONTEXT_KNOWLEDGE_GRAPH_MONGODB_URI=<your MongoDB connection string>
-CONTEXT_KNOWLEDGE_GRAPH_DATABASE=context_knowledge_graph_demo
-CONTEXT_KNOWLEDGE_GRAPH_LEXICAL_INDEX=context_knowledge_graph_rules_lexical
-CONTEXT_KNOWLEDGE_GRAPH_USE_LLM=false
-```
+## Launch the Studio
 
-Use your deployment's actual database and lexical-index names. It also needs the `autoEmbed_ruleData` vector index and support for the native pipeline stages used by the demo. The [lexical index definition](context-knowledge-graph-runtime/demo/hybrid-search/lexical-index.json) and [vector index definition](context-knowledge-graph-runtime/demo/hybrid-search/vector-index.json) are included. The vector index must include purpose/date filter fields; see the [index setup instructions](docs/demo-guide.md#context-model-and-limits). Main-view retrieval does not require an answer-model API key or memory service. Optional model settings apply to the legacy agent explorer.
+### 1. Create the configuration file
+
+From the repository root:
 
 ```bash
 cd context-knowledge-graph-runtime
+cp .env.example .env
+```
+
+### 2. Fill in your Atlas settings
+
+Open `.env` and set these three values:
+
+```dotenv
+CONTEXT_KNOWLEDGE_GRAPH_MONGODB_URI=<your connection string>
+CONTEXT_KNOWLEDGE_GRAPH_DATABASE=<existing database name>
+CONTEXT_KNOWLEDGE_GRAPH_LEXICAL_INDEX=<existing lexical search index name>
+```
+
+Use the actual names supplied with your demo database access. The database and lexical-index names in `.env.example` are examples; they do not create or rename anything in Atlas.
+
+Leave the other template defaults unchanged for Studio-only use: `CONTEXT_KNOWLEDGE_GRAPH_USE_LLM=false`, `CONTEXT_KNOWLEDGE_GRAPH_CONTEXT_WRITES=false`, and the optional LLM/memory credentials blank.
+
+The demo also expects a Vector Search index named `autoEmbed_ruleData`, including purpose and effective-date filters, and support for native hybrid search, automated embeddings, and `$rerank`. If you need to configure the indexes, use the [index setup notes](docs/demo-guide.md#context-model-and-limits), [lexical definition](context-knowledge-graph-runtime/demo/hybrid-search/lexical-index.json), and [vector definition](context-knowledge-graph-runtime/demo/hybrid-search/vector-index.json).
+
+### 3. Start the app
+
+```bash
 docker compose up --build -d
 ```
 
-Open **http://localhost:8080** to launch the Context Engineering Studio.
+The first build downloads dependencies and can take a few minutes. Once the app has started, open **http://localhost:8080**.
 
-To stop the demo, run from the same runtime directory:
+## Stop the app
+
+From `context-knowledge-graph-runtime`:
 
 ```bash
 docker compose down
 ```
 
-The app does not persist execution checkpoints. All local settings live in `context-knowledge-graph-runtime/.env`; both Docker and Python use that one file. For non-Docker runs, existing process environment variables take precedence. The `.env` file and generated reports stay out of Git.
+## Explore the demo
+
+- **01 — Domain entry points:** select effective-dated starting rules with `$match`, then follow declared dependencies with `$graphLookup`.
+- **02 — Discover and traverse:** combine lexical and semantic retrieval, rerank candidates, and expand their relationships. Query context explains the differences between retrieval profiles.
+- **03 — Reuse what you know:** a conceptual memory-integration walkthrough; it does not call a memory service.
+
+**Run pipeline** shows individual stage previews. **Run full pipeline**, to the right of the last stage, executes one complete aggregation and compares its latency with the preview total. Hover or focus a graph box to highlight its outgoing connections.
+
+The Studio reads business data without modifying it. Retrieved rules are candidate evidence, not proof that they determined a recorded claim payment.
 
 ## Documentation
 
 | Guide | Purpose |
 |---|---|
-| [Demo guide](docs/demo-guide.md) | Rehearse the three retrieval evolutions, explain each stage, compare hybrid profiles, and export Compass pipelines. |
-| [Data guide](docs/data-guide.md) | Understand domain/context modeling, the dated fixture inventory, rule versions, proposed memory/cache behavior, and fixture maintenance. |
-| [Pricing scenarios](docs/pricing-scenarios.md) | Repeat the P01–P16 legacy investigations and evaluate evidence; includes additional fixture storylines. |
-| [Development guide](docs/development.md) | Navigate the code, run locally, test changes, and understand the optional legacy agent/memory path. |
-
-## What is implemented
-
-- Domain entry points: `$match → $graphLookup`, with effective-date filtering and no fixed starting rule ID.
-- Discovery: prefiltered exact/optional ANN hybrid search → native `$rerank` → `$graphLookup`, with stage explanations, actual results, and copyable queries.
-- Individual teaching previews plus a separate full-pipeline button that compares one-aggregation latency against the preview total.
-- Document inspection: separate rule versions, versioned relationships, operational source records, and source-shaped shared context.
-- Interactive relationship diagrams: hover or focus a box to highlight outgoing connections.
-- Business framing: capabilities span data domains; procedures organize investigation; rules and attributed evidence establish applicability.
-
-The memory-assisted third evolution is a conceptual handoff. Main-view operations read business data without writing it or calling the answer LLM. The legacy explorer can enrich shared context when enabled. All fixtures are synthetic; retrieved rules are candidates, not proof of recorded adjudication. This demo uses an application-owned runtime; Agent Engine hosting and Kubernetes are not required.
+| [Demo guide](docs/demo-guide.md) | Rehearsal, retrieval profiles, index setup, and Compass pipelines. |
+| [Data guide](docs/data-guide.md) | Document models, fixture inventory, and maintenance scripts. |
+| [Pricing scenarios](docs/pricing-scenarios.md) | Repeatable questions and evaluator checks for the optional legacy agent demo. |
+| [Development guide](docs/development.md) | Code structure, local development, testing, and optional legacy agents/memory. |
